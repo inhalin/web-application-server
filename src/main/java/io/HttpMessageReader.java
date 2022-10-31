@@ -2,10 +2,12 @@ package io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 import webserver.RequestHandler;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class HttpMessageReader implements Closeable {
 
@@ -14,6 +16,7 @@ public class HttpMessageReader implements Closeable {
     private String method;
     private String url;
     private String httpVersion;
+    private Map<String, String> queryParams;
 
     public HttpMessageReader(InputStream in) {
         reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
@@ -35,6 +38,11 @@ public class HttpMessageReader implements Closeable {
         method = splited[0];
         url = splited[1];
         httpVersion = splited[2];
+
+        splited = url.split("\\?");
+        if (splited.length == 1) return url;
+        url = splited[0];
+        queryParams = HttpRequestUtils.parseQueryString(splited[1]);
         return url;
     }
 
@@ -45,5 +53,9 @@ public class HttpMessageReader implements Closeable {
     @Override
     public void close() throws IOException {
         reader.close();
+    }
+
+    public Map<String, String> getQueryParams() {
+        return queryParams;
     }
 }
