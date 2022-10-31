@@ -1,11 +1,10 @@
 package webserver;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
 
+import io.HttpMessageReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,14 +21,42 @@ public class RequestHandler extends Thread {
         log.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
 
-        try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
-            // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
+        try (HttpMessageReader requestReader = new HttpMessageReader(connection.getInputStream());
+             OutputStream out = connection.getOutputStream()) {
+
+            final String url = requestReader.readUrlPath();
+            switch (url) {
+                case "/favicon.ico":
+                case "/index.html": {
+                    handleFileRequest(url, out);
+                    break;
+                }
+                default: {
+                    handleDefault(out);
+                }
+            }
+
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void handleDefault(OutputStream out) {
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = "Hello World".getBytes();
+        response200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private void handleFileRequest(String url, OutputStream out) throws IOException {
+        try {
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] body = "Hello World".getBytes();
-            response200Header(dos, body.length);
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos,body.length);
             responseBody(dos, body);
         } catch (IOException e) {
             log.error(e.getMessage());
+            throw new IOException();
         }
     }
 
