@@ -3,8 +3,10 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Map;
 
 import io.HttpMessageReader;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,9 @@ public class RequestHandler extends Thread {
                     handleFileRequest(url, out);
                     break;
                 }
+                case "/user/create": {
+                    handleSignUp(requestReader.getQueryParams(), out);
+                }
                 default: {
                     handleDefault(out);
                 }
@@ -60,6 +65,19 @@ public class RequestHandler extends Thread {
             log.error(e.getMessage());
             throw new IOException();
         }
+    }
+
+    private void handleSignUp(Map<String, String> queryParams, OutputStream out) throws IOException {
+        final String userId = queryParams.get("userId");
+        final String password = queryParams.get("password");
+        final String name = queryParams.get("name");
+        final String email = queryParams.get("email");
+        User user = new User(userId, password, name, email);
+
+        DataOutputStream dos = new DataOutputStream(out);
+        byte[] body = user.toString().getBytes();
+        response200Header(dos, body.length);
+        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
