@@ -23,9 +23,11 @@ public class RequestHandler extends Thread {
 
         try (HttpMessageReader requestReader = new HttpMessageReader(connection.getInputStream());
              OutputStream out = connection.getOutputStream()) {
+//            requestReader.print();
 
             final String url = requestReader.readUrlPath();
             switch (url) {
+                case "/user/form.html":
                 case "/favicon.ico":
                 case "/index.html": {
                     handleFileRequest(url, out);
