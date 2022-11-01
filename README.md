@@ -67,10 +67,7 @@ Location: /index.html
   * 성공시 쿠키에 `loggedIn=true` 설정해주고 `redirect:/index.html`
 * 함수 묶는 부분에서 개선 필요. 302 redirect 부분이 중복된다.
 
-### 요구사항 6 - stylesheet 적용
+### 요구사항 6 - 사용자 목록 출력
 
-* 
-
-### heroku 서버에 배포 후
-
-* 
+* 쿠키에 `loggedin=true` 값이 설정되어 있는 경우 `/user/list`에서 사용자 목록 전부 출력
+* 추가사항: 로그아웃 기능 구현 필요

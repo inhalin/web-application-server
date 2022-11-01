@@ -1,5 +1,6 @@
 package webserver;
 
+import db.DataBase;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +11,10 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Map;
 
-import static db.DataBase.addUser;
-import static db.DataBase.findUserById;
+import static db.DataBase.*;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -43,6 +44,7 @@ public class RequestHandler extends Thread {
             log.debug("url = {}, params = {}", url, params);
 
             int contentLength = 0;
+            boolean isLoggedIn = false;
             while (!"".equals(line)) {
                 line = br.readLine();
                 log.debug("header = {}", line);
@@ -53,6 +55,11 @@ public class RequestHandler extends Thread {
                     // params = IOUtils.readData(br, contentLength);
                     // log.debug("params = {}", params); // => params = Cache-Control: max-age=0 sec-ch-ua: "Chromium";v="1
                 }
+
+                if (line.contains("Cookie")) {
+                    isLoggedIn = getLoginStatus(line);
+                    log.debug("isLoggedIn = {}", isLoggedIn);
+                }
             }
 
             if (contentLength > 0) {
@@ -62,6 +69,23 @@ public class RequestHandler extends Thread {
 
             Map<String, String> userData = parseData(params);
             DataOutputStream dos = new DataOutputStream(out);
+
+            if (url.equals("/user/list")) {
+                if (!isLoggedIn) {
+                    response302Header(dos, "/user/login.html");
+                }
+
+                Collection<User> users = findAll();
+                StringBuilder sb = new StringBuilder();
+                for (User user : users) {
+                    sb.append("<p>아이디: ").append(user.getUserId()).append("</p><br>");
+                    sb.append("<p>이름: ").append(user.getName()).append("</p><br>");
+                    sb.append("<p>이메일: ").append(user.getEmail()).append("</p><br>");
+                }
+                byte[] body = sb.toString().getBytes(StandardCharsets.UTF_8);
+                response200Header(dos, body.length);
+                responseBody(dos, body);
+            }
 
             if (url.equals("/user/login")) {
                 String userId = userData.get("userId");
@@ -161,5 +185,17 @@ public class RequestHandler extends Thread {
 
     private Map<String, String> parseData(String data) {
         return HttpRequestUtils.parseQueryString(data);
+    }
+
+    private boolean getLoginStatus(String line) {
+        String cookie = line.split(":")[1].trim();
+        log.debug("cookie = {}", cookie);
+
+        Map<String, String> cookies = HttpRequestUtils.parseCookies(cookie);
+
+        boolean loggedIn = Boolean.parseBoolean(cookies.get("loggedin"));
+        log.debug("loggedIn = {}", loggedIn);
+
+        return loggedIn;
     }
 }
