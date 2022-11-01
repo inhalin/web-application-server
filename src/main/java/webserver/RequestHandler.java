@@ -32,6 +32,11 @@ public class RequestHandler extends Thread {
 
             final String url = requestReader.readUrlPath();
             switch (url) {
+                case "/css/style.css":
+                case "/css/bootstrap.min.css": {
+                       handleCssFileRequest(url, new DataOutputStream(out));
+                       break;
+                }
                 case "/user/login.html":
                 case "/user/form.html":
                 case "/favicon.ico":
@@ -55,6 +60,23 @@ public class RequestHandler extends Thread {
                     handleDefault(out);
                 }
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void handleCssFileRequest(String path, DataOutputStream dos) throws IOException {
+        byte[] body = Files.readAllBytes(new File(FILE_BASE_PATH + path).toPath());
+        responseCssFile200Header(dos, body.length);
+        responseBody(dos, body);
+    }
+
+    private void responseCssFile200Header(DataOutputStream dos, int lengthOfBodyContent) {
+        try {
+            dos.writeBytes("HTTP/1.1 200 OK \r\n");
+            dos.writeBytes("Content-Type: text/css;\r\n");
+            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
