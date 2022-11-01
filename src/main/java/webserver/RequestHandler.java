@@ -30,6 +30,7 @@ public class RequestHandler extends Thread {
 
             final String url = requestReader.readUrlPath();
             switch (url) {
+                case "/user/login.html":
                 case "/user/form.html":
                 case "/favicon.ico":
                 case "/index.html": {
@@ -79,7 +80,7 @@ public class RequestHandler extends Thread {
         final String name = queryParams.get("name");
         final String email = queryParams.get("email");
         User user = new User(userId, password, name, email);
-
+        DataBase.addUser(user);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
