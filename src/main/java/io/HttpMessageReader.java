@@ -13,7 +13,7 @@ public class HttpMessageReader implements Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(HttpMessageReader.class);
     private BufferedReader reader;
-    private String method;
+    private HttpMethod method;
     private String url;
     private String httpVersion;
     private Map<String, String> queryParams;
@@ -35,7 +35,7 @@ public class HttpMessageReader implements Closeable {
         String line = reader.readLine();
         if (line == null) throw new IOException();
         String[] splited = line.split(" ");
-        method = splited[0];
+        method = HttpMethod.valueToMethod(splited[0]);
         url = splited[1];
         httpVersion = splited[2];
 
