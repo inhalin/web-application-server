@@ -60,7 +60,12 @@ Location: /index.html
 
 ### 요구사항 5 - cookie
 
-* 
+* 회원가입 유저 정보 저장
+  * `/user/create` - Database.addUser() 로 디비 저장
+* 로그인
+  * 실패시 `redirect:/user/login_failed.html`
+  * 성공시 쿠키에 `loggedIn=true` 설정해주고 `redirect:/index.html`
+* 함수 묶는 부분에서 개선 필요. 302 redirect 부분이 중복된다.
 
 ### 요구사항 6 - stylesheet 적용
 

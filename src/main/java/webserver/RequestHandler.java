@@ -12,6 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Map;
 
+import static db.DataBase.addUser;
+import static db.DataBase.findUserById;
+
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
@@ -59,15 +62,44 @@ public class RequestHandler extends Thread {
 
             Map<String, String> userData = parseData(params);
             DataOutputStream dos = new DataOutputStream(out);
-            if (!userData.isEmpty()) {
-                User user = new User(userData.get("userId"), userData.get("password"), userData.get("name"), userData.get("email"));
-                log.debug("user = {}", user);
-                response302Header(dos, "/index.html");
-            } else {
-                byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
-                response200Header(dos, body.length);
-                responseBody(dos, body);
+
+            if (url.equals("/user/login")) {
+                String userId = userData.get("userId");
+                String password = userData.get("password");
+                User user = findUserById(userId);
+                if (user == null) {
+                    response302Header(dos, "/user/login_failed.html");
+                    return;
+                }
+
+                boolean loggedIn = password.equals(user.getPassword());
+                if (loggedIn) {
+                    responseLoggedInHeader(dos, "/index.html");
+                } else {
+                    response302Header(dos, "/user/login_failed.html");
+                }
             }
+
+            if (url.equals("/user/create")) {
+                User user = new User(userData.get("userId"), userData.get("password"), userData.get("name"), userData.get("email"));
+                addUser(user);
+                response302Header(dos, "/index.html");
+            }
+
+            byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
+            response200Header(dos, body.length);
+            responseBody(dos, body);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void responseLoggedInHeader(DataOutputStream dos, String url) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + url + "\r\n");
+            dos.writeBytes("Set-Cookie: loggedin=true\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
