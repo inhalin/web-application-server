@@ -9,6 +9,7 @@ import io.HttpMessageReader;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -25,7 +26,6 @@ public class RequestHandler extends Thread {
 
         try (HttpMessageReader requestReader = new HttpMessageReader(connection.getInputStream());
              OutputStream out = connection.getOutputStream()) {
-//            requestReader.print();
 
             final String url = requestReader.readUrlPath();
             switch (url) {
@@ -36,13 +36,13 @@ public class RequestHandler extends Thread {
                     break;
                 }
                 case "/user/create": {
-                    handleSignUp(requestReader.getQueryParams(), out);
+                    handleSignUp(requestReader.readBodyMap(), out);
+                    break;
                 }
                 default: {
                     handleDefault(out);
                 }
             }
-
         } catch (IOException e) {
             log.error(e.getMessage());
         }
