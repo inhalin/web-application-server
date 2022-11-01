@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.Map;
 
+import db.DataBase;
 import io.HttpMessageReader;
 import model.User;
 import org.slf4j.Logger;
@@ -68,16 +69,17 @@ public class RequestHandler extends Thread {
     }
 
     private void handleSignUp(Map<String, String> queryParams, OutputStream out) throws IOException {
+        createUser(queryParams);
+        response302Header(new DataOutputStream(out));
+    }
+
+    private void createUser(Map<String, String> queryParams) {
         final String userId = queryParams.get("userId");
         final String password = queryParams.get("password");
         final String name = queryParams.get("name");
         final String email = queryParams.get("email");
         User user = new User(userId, password, name, email);
 
-        DataOutputStream dos = new DataOutputStream(out);
-        byte[] body = user.toString().getBytes();
-        response200Header(dos, body.length);
-        responseBody(dos, body);
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
@@ -85,6 +87,17 @@ public class RequestHandler extends Thread {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
             dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found \r\n");
+            dos.writeBytes("Content-Type: text/html;charset=utf-8\r\n");
+            dos.writeBytes("Location: http://localhost:8080/index.html\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
