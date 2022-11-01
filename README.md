@@ -44,7 +44,19 @@
 
 ### 요구사항 4 - redirect 방식으로 이동
 
-*
+* 302 redirect 스펙 확인해서 작업하기
+
+Client request:
+```
+GET /index.html HTTP/1.1
+Host: localhost:8081
+```
+
+Server response:
+```
+HTTP/1.1 302 Found
+Location: /index.html
+```
 
 ### 요구사항 5 - cookie
 

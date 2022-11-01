@@ -15,7 +15,7 @@ import java.util.Map;
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
-    private Socket connection;
+    private final Socket connection;
 
     public RequestHandler(Socket connectionSocket) {
         this.connection = connectionSocket;
@@ -58,16 +58,26 @@ public class RequestHandler extends Thread {
             }
 
             Map<String, String> userData = parseData(params);
-
+            DataOutputStream dos = new DataOutputStream(out);
             if (!userData.isEmpty()) {
                 User user = new User(userData.get("userId"), userData.get("password"), userData.get("name"), userData.get("email"));
                 log.debug("user = {}", user);
+                response302Header(dos, "/index.html");
             } else {
-                DataOutputStream dos = new DataOutputStream(out);
                 byte[] body = Files.readAllBytes(new File("./webapp" + url).toPath());
                 response200Header(dos, body.length);
                 responseBody(dos, body);
             }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    private void response302Header(DataOutputStream dos, String url) {
+        try {
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + url + "\r\n");
+            dos.writeBytes("\r\n");
         } catch (IOException e) {
             log.error(e.getMessage());
         }
