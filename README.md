@@ -35,7 +35,12 @@
 
 ### 요구사항 3 - post 방식으로 회원가입
 
-*
+* `form.html`에서 method를 post로 변경
+* `getParams()`가 String을 반환하도록 변경
+* while문 돌면서 문자열에 `Content-Length`가 포함된 경우에는 contentLength를 저장
+  * while문 안에서 IOUtils.readData() 하면 안됨 -> 이상한 값을 읽어옴
+* while문 끝나고 밖에서 contentLength가 0보다 크면 readData해서 쿼리스트링을 파싱
+* 파싱한 값이 있으면 넘어온 회원가입 정보가 있는 것이므로 User 객체 생성
 
 ### 요구사항 4 - redirect 방식으로 이동
 

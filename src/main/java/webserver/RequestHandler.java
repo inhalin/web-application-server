@@ -4,6 +4,7 @@ import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -35,14 +36,31 @@ public class RequestHandler extends Thread {
 
             String[] tokens = line.split(" ");
             String url = getUrl(tokens[1]);
-            Map<String, String> params = getParams(tokens[1]);
+            String params = getParams(tokens[1]);
+            log.debug("url = {}, params = {}", url, params);
 
+            int contentLength = 0;
             while (!"".equals(line)) {
                 line = br.readLine();
+                log.debug("header = {}", line);
+
+                if (line.contains("Content-Length")) {
+                    contentLength = getContentLength(line);
+                    // 여기서 IOUtils.readData() 하면 안됨
+                    // params = IOUtils.readData(br, contentLength);
+                    // log.debug("params = {}", params); // => params = Cache-Control: max-age=0 sec-ch-ua: "Chromium";v="1
+                }
             }
 
-            if (params != null) {
-                User user = new User(params.get("userId"), params.get("password"), params.get("name"), params.get("email"));
+            if (contentLength > 0) {
+                params = IOUtils.readData(br, contentLength);
+                log.debug("params = {}", params);
+            }
+
+            Map<String, String> userData = parseData(params);
+
+            if (!userData.isEmpty()) {
+                User user = new User(userData.get("userId"), userData.get("password"), userData.get("name"), userData.get("email"));
                 log.debug("user = {}", user);
             } else {
                 DataOutputStream dos = new DataOutputStream(out);
@@ -86,14 +104,20 @@ public class RequestHandler extends Thread {
         return url;
     }
 
-    private Map<String, String> getParams(String token) {
+    private String getParams(String token) {
         if (token.contains("?")) {
             int index = token.indexOf("?") + 1;
-            String params = token.substring(index);
-
-            return HttpRequestUtils.parseQueryString(params);
+            return token.substring(index);
         }
 
         return null;
+    }
+
+    private int getContentLength(String line) {
+        return Integer.parseInt(line.split(":")[1].trim());
+    }
+
+    private Map<String, String> parseData(String data) {
+        return HttpRequestUtils.parseQueryString(data);
     }
 }
