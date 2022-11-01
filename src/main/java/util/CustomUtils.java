@@ -75,4 +75,11 @@ public class CustomUtils {
             log.error(e.getMessage());
         }
     }
+
+    public static boolean isStaticResource(String requestPath) {
+        String[] tokens = requestPath.split("[.]");
+        String ext = tokens[tokens.length-1];
+
+        return "js".equals(ext) || "css".equals(ext);
+    }
 }
