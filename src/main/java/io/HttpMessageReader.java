@@ -1,12 +1,14 @@
 package io;
 
+import http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
-import webserver.RequestHandler;
+import util.IOUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpMessageReader implements Closeable {
@@ -17,12 +19,15 @@ public class HttpMessageReader implements Closeable {
     private String url;
     private String httpVersion;
     private Map<String, String> queryParams;
+    private Map<String, String> headers;
+    private String body;
 
     public HttpMessageReader(InputStream in) {
         reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+        headers = new HashMap<>();
     }
 
-    public void print() throws IOException {
+    public void printHeader() throws IOException {
         String line = "start";
         while (!"".equals(line)) {
             line = reader.readLine();
@@ -58,4 +63,25 @@ public class HttpMessageReader implements Closeable {
     public Map<String, String> getQueryParams() {
         return queryParams;
     }
+
+    public Map<String, String> readBodyMap() throws IOException {
+        parseHeaders();
+        int contentLength = Integer.parseInt(headers.get("Content-Length"));
+        body = IOUtils.readData(reader, contentLength);
+        return HttpRequestUtils.parseQueryString(body);
+    }
+
+    public void parseHeaders() throws IOException {
+        String line = "start";
+        while (!"".equals(line)) {
+            line = reader.readLine();
+            if (line == null || line.equals(""))  return;
+
+            int index = line.indexOf(":");
+            String key = line.substring(0, index);
+            String value = line.substring(index + 1);
+            headers.put(key, value.strip());
+        }
+    }
+
 }
