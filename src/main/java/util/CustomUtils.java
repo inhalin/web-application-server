@@ -1,9 +1,16 @@
 package util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CustomUtils {
+    private static final Logger log = LoggerFactory.getLogger(CustomUtils.class);
+
     public static Map<String, String> getRequestPath(String line) {
         if (line == null) {
             return null;
@@ -36,5 +43,36 @@ public class CustomUtils {
         map.put(tokens[0], tokens[1]);
 
         return map;
+    }
+
+    public static String getHeaderValue(BufferedReader br, String header) {
+        String value = null;
+
+        try {
+            while (true) {
+                String line = br.readLine();
+                if (line == null || "".equals(line)) {
+                    return null;
+                }
+                String[] tokens = line.split(" ");
+
+                if (tokens[0].equals(header + ":")) {
+                    value = tokens[1];
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+
+        return value;
+    }
+
+    public static void moveEndLine(BufferedReader br) {
+        try {
+            while (!"".equals(br.readLine()));
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
     }
 }
