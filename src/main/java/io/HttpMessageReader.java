@@ -84,4 +84,8 @@ public class HttpMessageReader implements Closeable {
         }
     }
 
+    public Map<String, String> getHeaders() throws IOException {
+        parseHeaders();
+        return headers;
+    }
 }

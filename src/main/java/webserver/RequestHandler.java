@@ -3,6 +3,7 @@ package webserver;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.Map;
 
 import db.DataBase;
@@ -10,6 +11,7 @@ import io.HttpMessageReader;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -45,6 +47,10 @@ public class RequestHandler extends Thread {
                     handleLogin(requestReader.readBodyMap(), out);
                     break;
                 }
+                case "/user/list": {
+                    handleUserList(requestReader.getHeaders(), out);
+                    break;
+                }
                 default: {
                     handleDefault(out);
                 }
@@ -52,6 +58,41 @@ public class RequestHandler extends Thread {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+    }
+
+    private void handleUserList(Map<String, String> headers, OutputStream out) throws IOException {
+        boolean logined = isLogined(headers);
+
+        DataOutputStream dos = new DataOutputStream(out);
+        if (logined) {
+            Collection<User> users = DataBase.findAll();
+            String body = buildUsersHtml(users);
+            response200HeaderWithCookie(dos, body.length(), logined);
+            responseBody(dos, body.getBytes());
+            return;
+        }
+
+        byte[] file = Files.readAllBytes(new File(FILE_BASE_PATH + "/user/login.html").toPath());
+        response200HeaderWithCookie(dos, file.length, logined);
+        responseBody(dos, file);
+    }
+
+    private String buildUsersHtml(Collection<User> users) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append("<head></head>");
+        sb.append("<body>");
+        for (User user : users) {
+            sb.append(user.toString()).append('\n');
+        }
+        sb.append("</body>");
+        sb.append("</html>");
+        return sb.toString();
+    }
+
+    private boolean isLogined(Map<String, String> headers) throws IOException {
+        Map<String, String> cookies = HttpRequestUtils.parseCookies(headers.get("Cookie"));
+        return Boolean.parseBoolean(cookies.get("logined"));
     }
 
     private void handleLogin(Map<String, String> body, OutputStream out) throws IOException {
