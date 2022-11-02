@@ -35,7 +35,8 @@ public class RequestHandler extends Thread {
             if (line == null) {
                 return;
             }
-            Map<String, String> requestPath = CustomUtils.getRequestPath(line);
+            Map<String, String> startLineInfo = CustomUtils.getStartLine(line);
+            String path = startLineInfo.get("path");
 
 //            while (true) {
 //                line = br.readLine();
@@ -49,14 +50,14 @@ public class RequestHandler extends Thread {
 //                log.debug("header : {}", line);
 //            }
 
-            if ("/index.html".equals(requestPath.get("path"))
-                    || "/user/form.html".equals(requestPath.get("path"))
-                    || "/user/login.html".equals(requestPath.get("path"))) {
-                byte[] body = Files.readAllBytes(new File("./webapp" + requestPath.get("path")).toPath());
+            if ("/index.html".equals(path)
+                    || "/user/form.html".equals(path)
+                    || "/user/login.html".equals(path)) {
+                byte[] body = Files.readAllBytes(new File("./webapp" + path).toPath());
                 DataOutputStream dos = new DataOutputStream(out);
                 responseHeader(dos, body.length, HttpURLConnection.HTTP_OK, "text/html", null);
                 responseBody(dos, body);
-            } else if ("/user/create".equals(requestPath.get("path"))) {
+            } else if ("/user/create".equals(path)) {
                 int contentLength = Integer.parseInt(CustomUtils.getHeaderValue(br, "Content-Length"));
                 CustomUtils.moveEndLine(br);
 
@@ -70,7 +71,7 @@ public class RequestHandler extends Thread {
                 DataOutputStream dos = new DataOutputStream(out);
                 responseHeader(dos, responseBody.length, HttpURLConnection.HTTP_MOVED_TEMP, "text/html", Map.of("Location", "/index.html"));
                 responseBody(dos, responseBody);
-            } else if ("/user/login".equals(requestPath.get("path"))) {
+            } else if ("/user/login".equals(path)) {
                 int contentLength = Integer.parseInt(CustomUtils.getHeaderValue(br, "Content-Length"));
                 CustomUtils.moveEndLine(br);
 
@@ -93,7 +94,7 @@ public class RequestHandler extends Thread {
                             Map.of("Location", "/user/login_failed.html", "Set-Cookie", "logined=false"));
                     responseBody(dos, responseBody);
                 }
-            } else if ("/user/list".equals(requestPath.get("path"))) {
+            } else if ("/user/list".equals(path)) {
                 Map<String, String> cookies = HttpRequestUtils.parseCookies(CustomUtils.getHeaderValue(br, "Cookie"));
 
                 boolean isLoginResult = Boolean.parseBoolean(cookies.get("logined"));
@@ -125,8 +126,8 @@ public class RequestHandler extends Thread {
                             Map.of("Location", "/user/login.html"));
                     responseBody(dos, responseBody);
                 }
-            } else if (CustomUtils.isStaticResource(requestPath.get("path"))) {
-                byte[] responseBody = Files.readAllBytes(new File("./webapp" + requestPath.get("path")).toPath());
+            } else if (CustomUtils.isStaticResource(path)) {
+                byte[] responseBody = Files.readAllBytes(new File("./webapp" + path).toPath());
                 DataOutputStream dos = new DataOutputStream(out);
                 responseHeader(dos, responseBody.length, HttpURLConnection.HTTP_MOVED_TEMP, "text/css", null);
                 responseBody(dos, responseBody);

@@ -11,7 +11,7 @@ import java.util.Map;
 public class CustomUtils {
     private static final Logger log = LoggerFactory.getLogger(CustomUtils.class);
 
-    public static Map<String, String> getRequestPath(String line) {
+    public static Map<String, String> getStartLine(String line) {
         if (line == null) {
             return null;
         }
