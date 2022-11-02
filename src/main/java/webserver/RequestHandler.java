@@ -81,6 +81,7 @@ public class RequestHandler extends Thread {
 
                 User findUser = DataBase.findUserById(loginUser.getUserId());
 
+                // TODO 쿠키 해당 경로에 안들어가는 이슈
                 if (loginUser.isLoginOK(findUser)) {
                     byte[] responseBody = Files.readAllBytes(new File("./webapp/index.html").toPath());
                     DataOutputStream dos = new DataOutputStream(out);
