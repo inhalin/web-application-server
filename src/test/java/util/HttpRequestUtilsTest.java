@@ -1,19 +1,25 @@
 package util;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
-
 import java.util.Map;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import util.HttpRequestUtils.Pair;
+import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HttpRequestUtilsTest {
     @Test
     public void parseQueryString() {
         String queryString = "userId=javajigi";
         Map<String, String> parameters = HttpRequestUtils.parseQueryString(queryString);
+
+        assertEquals(parameters.get("userId"), "javajigi");
+
         assertThat(parameters.get("userId"), is("javajigi"));
         assertThat(parameters.get("password"), is(nullValue()));
 
