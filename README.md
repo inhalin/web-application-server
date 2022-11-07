@@ -75,3 +75,12 @@ Location: /index.html
 ### 요구사항 7 - CSS 지원하기
 
 * request url이 `.css`로 끝나는 경우 Content-Type을 `text/css`로 지정
+
+# 리팩토링
+
+### 1단계: 요청 데이터 처리 로직을 별도 클래스로 분리
+
+- HttpRequest.class
+  - InputStream을 생성자로 받아 HTTP 메서드, URL, 헤더, 본문을 분리
+  - 헤더는 Map<String, String>에 저장, getHeader("필드명") 메서드로 접근
+  - GET, POST로 전달된 인자는 Map<String, String>에 저장, getParameter("인자명") 메서드로 접근
