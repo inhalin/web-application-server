@@ -68,18 +68,18 @@ public class CustomUtils {
         return value;
     }
 
+    public static boolean isStaticResource(String requestPath) {
+        String[] tokens = requestPath.split("[.]");
+        String ext = tokens[tokens.length-1];
+
+        return "js".equals(ext) || "css".equals(ext);
+    }
+
     public static void moveEndLine(BufferedReader br) {
         try {
             while (!"".equals(br.readLine()));
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    public static boolean isStaticResource(String requestPath) {
-        String[] tokens = requestPath.split("[.]");
-        String ext = tokens[tokens.length-1];
-
-        return "js".equals(ext) || "css".equals(ext);
     }
 }
