@@ -81,18 +81,17 @@ public class RequestHandler extends Thread {
 
                 User findUser = DataBase.findUserById(loginUser.getUserId());
 
-                // TODO 쿠키 해당 경로에 안들어가는 이슈
                 if (loginUser.isLoginOK(findUser)) {
                     byte[] responseBody = Files.readAllBytes(new File("./webapp/index.html").toPath());
                     DataOutputStream dos = new DataOutputStream(out);
                     responseHeader(dos, responseBody.length, HttpURLConnection.HTTP_MOVED_TEMP, "text/html",
-                            Map.of("Location", "/index.html", "Set-Cookie", "logined=true"));
+                            Map.of("Location", "/index.html", "Set-Cookie", "logined=true; Path=/"));
                     responseBody(dos, responseBody);
                 } else {
                     byte[] responseBody = Files.readAllBytes(new File("./webapp/user/login_failed.html").toPath());
                     DataOutputStream dos = new DataOutputStream(out);
                     responseHeader(dos, responseBody.length, HttpURLConnection.HTTP_MOVED_TEMP, "text/html",
-                            Map.of("Location", "/user/login_failed.html", "Set-Cookie", "logined=false"));
+                            Map.of("Location", "/user/login_failed.html", "Set-Cookie", "logined=false; Path=/"));
                     responseBody(dos, responseBody);
                 }
             } else if ("/user/list".equals(path)) {
