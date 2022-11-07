@@ -71,3 +71,7 @@ Location: /index.html
 
 * 쿠키에 `loggedin=true` 값이 설정되어 있는 경우 `/user/list`에서 사용자 목록 전부 출력
 * 추가사항: 로그아웃 기능 구현 필요
+
+### 요구사항 7 - CSS 지원하기
+
+* request url이 `.css`로 끝나는 경우 Content-Type을 `text/css`로 지정
