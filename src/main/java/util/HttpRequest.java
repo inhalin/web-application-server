@@ -41,10 +41,12 @@ public class HttpRequest {
                 setHeader(line);
             }
 
-            int contentLength = Integer.parseInt(header.get("Content-Length"));
-            if (contentLength > 0) {
-                String token = IOUtils.readData(br, contentLength);
-                setParameter(token);
+            if (header.get("Content-Length") != null) {
+                int contentLength = Integer.parseInt(header.get("Content-Length"));
+                if (contentLength > 0) {
+                    String token = IOUtils.readData(br, contentLength);
+                    setParameter(token);
+                }
             }
         } catch (IOException e) {
             log.debug(e.getMessage());
