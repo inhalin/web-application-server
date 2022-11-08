@@ -26,25 +26,46 @@ public class HttpResponse {
 
     public void forward(String url) throws IOException {
         statusCode = StatusCode.OK;
-        body = Files.readAllBytes(new File(CustomUtils.WEB_APP_ROOT + url).toPath());
 
-        addHeader("Content-Type", ContentType.findByExt(getFileExt(url)));
+        try {
+            body = Files.readAllBytes(new File(CustomUtils.WEB_APP_ROOT + url).toPath());
+
+            addHeader("Content-Type", ContentType.findByExt(CustomUtils.getFileExt(url)));
+            addHeader("Content-Length", String.valueOf(body.length));
+
+            response200Header();
+            responseBody(body);
+        } catch (IOException ioe) {
+            log.error(ioe.getMessage());
+        }
+    }
+
+    public void forwardBody(String bodyStr) {
+        statusCode = StatusCode.OK;
+        body = bodyStr.getBytes();
+
+        addHeader("Content-Type", "text/html");
         addHeader("Content-Length", String.valueOf(body.length));
 
         response200Header();
         responseBody(body);
     }
 
-    public void sendRedirect(String url) throws IOException {
+    public void sendRedirect(String url) {
         statusCode = StatusCode.REDIRECT;
-        body = Files.readAllBytes(new File(CustomUtils.WEB_APP_ROOT + url).toPath());
 
-        addHeader("Content-Type", ContentType.findByExt(getFileExt(url)));
-        addHeader("Content-Length", String.valueOf(body.length));
-        addHeader("Location", url);
+        try {
+            body = Files.readAllBytes(new File(CustomUtils.WEB_APP_ROOT + url).toPath());
 
-        response302Header();
-        responseBody(body);
+            addHeader("Content-Type", ContentType.findByExt(CustomUtils.getFileExt(url)));
+            addHeader("Content-Length", String.valueOf(body.length));
+            addHeader("Location", url);
+
+            response302Header();
+            responseBody(body);
+        } catch (IOException ioe) {
+            log.error(ioe.getMessage());
+        }
     }
 
     public void addHeader(String key, String value) {
@@ -88,12 +109,5 @@ public class HttpResponse {
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-    }
-
-    private String getFileExt(String url) {
-        String[] tokens = url.split("[.]");
-        String ext = tokens[tokens.length-1];
-
-        return ext;
     }
 }
