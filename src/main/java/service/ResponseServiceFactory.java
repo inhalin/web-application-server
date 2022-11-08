@@ -9,13 +9,13 @@ public class ResponseServiceFactory {
         final HttpMethod method = req.getMethod();
 
         if (isStaticFileRequest(url)) {
-            return new StaticFileResponseService(req);
+            return new StaticFileService(req);
         }
 
         switch (url) {
             case "/user/create" -> {
                 if (method == HttpMethod.POST) {
-                    return new SignUpResponseService(req);
+                    return new SignUpService(req);
                 }
             }
             case "/user/login" -> {

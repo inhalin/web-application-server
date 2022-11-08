@@ -51,7 +51,7 @@ AS-IS:
   
 TO-BE:
 - RequestHandler 
-  - ...
+  - 요청부터 응답까지 순서를 보장한다.
 - HttpMessageReader -> HttpRequestMessageParser 
   - InputStream를 파싱하여 HttpRequestMessage로 리턴
 - HttpMessageReader > HttpRequest 
@@ -68,3 +68,12 @@ TO-BE:
 - HttpResponseWriter
   - OutputStream과 HttpResponse와 함께 생성한다.
   - OutputStream에 HttpResponse를 write한다.
+- 아쉬운 점
+  - 테스트 코드가 부족해서 리팩토링하기 어려웠다.
+    - RequestHandler 테스트 하기가 어렵다.
+      - Service 클래스를 테스트해서 대체할 수 있을 것 같다.
+  - 예외처리가 안되어 있다.
+    - RequestHandler에서 명시적으로 예외들을 처리하면 좋을 것 같다.
+  - 로깅
+    - Req, Res 를 모두 로깅하면 좋을 것 같다.
+  - Service 구현체에 Response 쓸 때 반복코드 발생
