@@ -1,5 +1,9 @@
 package util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import webserver.RequestHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,35 +13,41 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
+    private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
 
     private String method;
     private String path;
-    private Map<String, String> parameter;
+    private Map<String, String> parameter = new HashMap<>();
     private Map<String, String> header = new HashMap<>();
 
-    public HttpRequest(InputStream in) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-        String line = br.readLine();
+    public HttpRequest(InputStream in) {
 
-        if (line == null) return;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String line = br.readLine();
 
-        method = line.split(" ")[0];
-        String[] tokens = line.split(" ")[1].split("\\?");
-        path = tokens[0];
-
-        if (tokens.length > 1) {
-            setParameter(tokens[1]);
-        }
-
-        while (!"".equals(line = br.readLine())) {
             if (line == null) return;
-            setHeader(line);
-        }
 
-        int contentLength = Integer.parseInt(header.get("Content-Length"));
-        if (contentLength > 0) {
-            String token = IOUtils.readData(br, contentLength);
-            setParameter(token);
+            method = line.split(" ")[0];
+            String[] tokens = line.split(" ")[1].split("\\?");
+            path = tokens[0];
+
+            if (tokens.length > 1) {
+                setParameter(tokens[1]);
+            }
+
+            while (!"".equals(line = br.readLine())) {
+                if (line == null) return;
+                setHeader(line);
+            }
+
+            int contentLength = Integer.parseInt(header.get("Content-Length"));
+            if (contentLength > 0) {
+                String token = IOUtils.readData(br, contentLength);
+                setParameter(token);
+            }
+        } catch (IOException e) {
+            log.debug(e.getMessage());
         }
     }
 
