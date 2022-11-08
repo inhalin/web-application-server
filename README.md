@@ -68,7 +68,6 @@ TO-BE:
 - HttpResponseWriter
   - OutputStream과 HttpResponse와 함께 생성한다.
   - OutputStream에 HttpResponse를 write한다.
-
 - 아쉬운 점
   - 테스트 코드가 부족해서 리팩토링하기 어려웠다.
     - RequestHandler 테스트 하기가 어렵다.
