@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class CustomUtils {
     private static final Logger log = LoggerFactory.getLogger(CustomUtils.class);
+    public static final String WEB_APP_ROOT = "./webapp";
 
     public static Map<String, String> getStartLine(String line) {
         if (line == null) {

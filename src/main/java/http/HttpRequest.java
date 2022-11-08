@@ -3,27 +3,36 @@ package http;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.HttpRequestUtils;
+import util.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class HttpRequest {
     private static final Logger log = LoggerFactory.getLogger(HttpRequest.class);
 
-    private BufferedReader br;
     private HttpMethod httpMethod;
     private String path;
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> parameters = new HashMap<>();
+    private BufferedReader br;
 
-    public HttpRequest(BufferedReader br) {
+    public HttpRequest(Reader reader) {
         try {
-            this.br = br;
+            br = new BufferedReader(reader);
 
-            parsingStartLine(br.readLine());
-            parsingHeaders(br);
+            parsingStartLine();
+            parsingHeaders();
+
+            if (httpMethod == HttpMethod.POST) {
+                int contentLength = Integer.parseInt(headers.get("Content-Length"));
+                String requestBody = IOUtils.readData(br, contentLength);
+
+                setParameter(HttpRequestUtils.parseQueryString(requestBody));
+            }
         } catch (IOException ioe) {
             log.error(ioe.getMessage());
         }
@@ -61,7 +70,9 @@ public class HttpRequest {
         return parameters.get(key);
     }
 
-    public void parsingStartLine(String startLine) {
+    public void parsingStartLine() throws IOException {
+        String startLine = br.readLine();
+
         if (startLine == null) {
             throw new NullPointerException();
         }
@@ -80,7 +91,7 @@ public class HttpRequest {
     public boolean isExistQueryString(String url) {
         return url.contains("?");
     }
-    public void parsingHeaders(BufferedReader br) {
+    public void parsingHeaders() {
         Map<String, String> headers = new HashMap<>();
 
         try {
