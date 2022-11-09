@@ -7,7 +7,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class HttpResponse {
 
             putContentTypeToHeader(url);
             putContentLengthToHeader(body);
-            response200Header(body.length);
+            response200Header();
             responseBody(body);
         } catch (IOException e) {
             log.debug(e.getMessage());
@@ -43,7 +42,7 @@ public class HttpResponse {
     public void forwardBody(byte[] body) {
         try {
             putContentLengthToHeader(body);
-            response200Header(body.length);
+            response200Header();
             responseBody(body);
         } catch (IOException e) {
             log.debug(e.getMessage());
@@ -64,7 +63,7 @@ public class HttpResponse {
         header.put("Content-Length", String.valueOf(body.length));
     }
 
-    private void response200Header(int bodyLength) throws IOException {
+    private void response200Header() throws IOException {
         dos.writeBytes("HTTP/1.1 200 OK\r\n");
         setHeader();
         dos.writeBytes("\r\n");
