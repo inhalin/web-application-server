@@ -33,4 +33,12 @@
 * 
 
 ### heroku 서버에 배포 후
-* 
+*
+
+### 5장 요구사항
+* HttpRequest, HttpResponse 객체로 관리
+  * StatusCode, ContentType, HttpMethod Enum 타입 생성
+* Controller가 비즈니스 로직 위임
+  * RequestMapping를 통해 매핑 컨트롤러 조회
+
+
