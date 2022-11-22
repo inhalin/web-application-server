@@ -3,15 +3,18 @@ package controller;
 import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpSessions;
 import model.User;
+import util.HttpRequestUtils;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class ListUserController extends AbstractController {
 
     @Override
     public void doGet(HttpRequest request, HttpResponse response) {
-        boolean isLoginResult = isLogin(request.getHeader("logined"));
+        boolean isLoginResult = isLogin(request.getHeader("Cookie"));
 
         if (isLoginResult) {
             Collection<User> users = DataBase.findAll();
@@ -34,7 +37,9 @@ public class ListUserController extends AbstractController {
             response.sendRedirect("/user/login.html");
         }
     }
-    public boolean isLogin(String isLogin) {
-        return Boolean.parseBoolean(isLogin);
+    public boolean isLogin(String cookies) {
+        Map<String, String> cookieMap = HttpRequestUtils.parseCookies(cookies);
+
+        return HttpSessions.getSession(cookieMap.get("JSESSIONID")) != null;
     }
 }

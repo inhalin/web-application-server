@@ -41,4 +41,8 @@
 * Controller가 비즈니스 로직 위임
   * RequestMapping를 통해 매핑 컨트롤러 조회
 
+### 6장 요구사항
+* HttpSessions, HttpSession 직접 구현해보기
+  * 로그인 성공시 Cookie에 JSESSIONID 값 세팅
+
 
