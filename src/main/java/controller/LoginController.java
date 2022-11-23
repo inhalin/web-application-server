@@ -4,7 +4,6 @@ import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
 import http.HttpSession;
-import http.HttpSessions;
 import model.User;
 
 public class LoginController extends AbstractController {
@@ -15,12 +14,11 @@ public class LoginController extends AbstractController {
         User findUser = DataBase.findUserById(loginUser.getUserId());
 
         if (loginUser.isLoginOK(findUser)) {
-            HttpSession session = HttpSessions.createSession();
+            HttpSession session = request.getSession();
+            session.setAttribute("user", loginUser);
 
-            response.addHeader("Set-Cookie", "JSESSIONID="+session.getId()+"; Path=/");
             response.sendRedirect("/index.html");
         } else {
-            response.addHeader("Set-Cookie", "Path=/");
             response.sendRedirect("/user/login_failed.html");
         }
     }

@@ -109,4 +109,12 @@ public class HttpRequest {
 
         setHeaders(headers);
     }
+
+    public HttpCookie getCookies() {
+        return new HttpCookie(headers.get("Cookie"));
+    }
+
+    public HttpSession getSession() {
+        return HttpSessions.getSession(getCookies().getCookie(HttpSessions.SESSION_NAME));
+    }
 }

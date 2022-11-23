@@ -6,12 +6,14 @@ import java.util.Map;
 public class HttpSession {
     private Map<String, Object> datas = new HashMap<>();
 
+    private String id;
+
     public HttpSession(String id) {
-        datas.put("JSESSIONID", id);
+        this.id = id;
     }
 
     public String getId() {
-        return datas.get("JSESSIONID").toString();
+        return id;
     }
 
     public void setAttribute(String name, Object value) {
@@ -27,10 +29,6 @@ public class HttpSession {
     }
 
     public void invalidate() {
-        for (String key : datas.keySet()) {
-            if (!"JSESSIONID".equals(key)) {
-                datas.remove(key);
-            }
-        }
+        HttpSessions.remove(id);
     }
 }

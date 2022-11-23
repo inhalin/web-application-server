@@ -2,23 +2,22 @@ package http;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class HttpSessions {
+    public static final String SESSION_NAME = "JSESSIONID";
     private static Map<String, HttpSession> sessions = new HashMap<>();
 
-    public static HttpSession getSession(String uuid) {
-        return sessions.get(uuid);
+    public static HttpSession getSession(String id) {
+        HttpSession session = sessions.get(id);
+        if (session == null) {
+            HttpSession newSession = new HttpSession(id);
+            sessions.put(id, newSession);
+            return newSession;
+        }
+        return session;
     }
 
-    public static HttpSession createSession() {
-        String uuid = UUID.randomUUID().toString();
-        sessions.put(uuid, new HttpSession(uuid));
-
-        return sessions.get(uuid);
-    }
-
-    public static Map<String, HttpSession> getSessions() {
-        return sessions;
+    public static void remove(String id) {
+        sessions.remove(id);
     }
 }
