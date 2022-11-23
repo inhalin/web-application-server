@@ -3,6 +3,7 @@ package controller;
 import db.DataBase;
 import http.HttpRequest;
 import http.HttpResponse;
+import http.HttpSession;
 import model.User;
 
 import java.util.Collection;
@@ -11,7 +12,7 @@ public class ListUserController extends AbstractController {
 
     @Override
     public void doGet(HttpRequest request, HttpResponse response) {
-        boolean isLoginResult = isLogin(request.getHeader("logined"));
+        boolean isLoginResult = isLogin(request.getSession());
 
         if (isLoginResult) {
             Collection<User> users = DataBase.findAll();
@@ -34,7 +35,8 @@ public class ListUserController extends AbstractController {
             response.sendRedirect("/user/login.html");
         }
     }
-    public boolean isLogin(String isLogin) {
-        return Boolean.parseBoolean(isLogin);
+
+    private boolean isLogin(HttpSession session) {
+        return session.getAttribute("user") != null;
     }
 }

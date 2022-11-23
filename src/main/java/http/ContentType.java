@@ -3,7 +3,7 @@ package http;
 public enum ContentType {
     HTML("html", "text/html"),
     CSS("css", "text/css"),
-    JS("js", "text/js");
+    JS("js", "text/javascript");
 
     private String ext;
     private String contentType;

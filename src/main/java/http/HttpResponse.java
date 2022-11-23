@@ -34,7 +34,7 @@ public class HttpResponse {
             addHeader("Content-Length", String.valueOf(body.length));
 
             response200Header();
-            responseBody(body);
+            responseBody();
         } catch (IOException ioe) {
             log.error(ioe.getMessage());
         }
@@ -48,7 +48,7 @@ public class HttpResponse {
         addHeader("Content-Length", String.valueOf(body.length));
 
         response200Header();
-        responseBody(body);
+        responseBody();
     }
 
     public void sendRedirect(String url) {
@@ -62,7 +62,7 @@ public class HttpResponse {
             addHeader("Location", url);
 
             response302Header();
-            responseBody(body);
+            responseBody();
         } catch (IOException ioe) {
             log.error(ioe.getMessage());
         }
@@ -72,7 +72,7 @@ public class HttpResponse {
         headers.put(key, value);
     }
 
-    private void responseBody(byte[] body) {
+    private void responseBody() {
         try {
             this.dos.write(body, 0, body.length);
             this.dos.flush();

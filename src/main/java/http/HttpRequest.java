@@ -18,14 +18,13 @@ public class HttpRequest {
     private String path;
     private Map<String, String> headers = new HashMap<>();
     private Map<String, String> parameters = new HashMap<>();
-    private BufferedReader br;
 
     public HttpRequest(Reader reader) {
         try {
-            br = new BufferedReader(reader);
+            BufferedReader br = new BufferedReader(reader);
 
-            parsingStartLine();
-            parsingHeaders();
+            parsingStartLine(br);
+            parsingHeaders(br);
 
             if (httpMethod == HttpMethod.POST) {
                 int contentLength = Integer.parseInt(headers.get("Content-Length"));
@@ -70,7 +69,7 @@ public class HttpRequest {
         return parameters.get(key);
     }
 
-    public void parsingStartLine() throws IOException {
+    public void parsingStartLine(BufferedReader br) throws IOException {
         String startLine = br.readLine();
 
         if (startLine == null) {
@@ -91,7 +90,7 @@ public class HttpRequest {
     public boolean isExistQueryString(String url) {
         return url.contains("?");
     }
-    public void parsingHeaders() {
+    public void parsingHeaders(BufferedReader br) {
         Map<String, String> headers = new HashMap<>();
 
         try {
@@ -109,5 +108,13 @@ public class HttpRequest {
         }
 
         setHeaders(headers);
+    }
+
+    public HttpCookie getCookies() {
+        return new HttpCookie(headers.get("Cookie"));
+    }
+
+    public HttpSession getSession() {
+        return HttpSessions.getSession(getCookies().getCookie(HttpSessions.SESSION_NAME));
     }
 }
